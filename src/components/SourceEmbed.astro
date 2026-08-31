@@ -6,6 +6,7 @@ import {
   youtubeEmbedUrl,
   type Source,
 } from '../lib/sources';
+import { safeHref } from '../lib/urls';
 
 interface Props {
   source: Source;
@@ -13,6 +14,7 @@ interface Props {
 
 const { source } = Astro.props;
 const platform = sourcePlatformName(source.kind);
+const href = safeHref(source.url);
 const postId = source.kind === 'x' ? xPostId(source.url) : null;
 const author = source.kind === 'x' ? xAuthor(source.url) : null;
 const videoUrl = source.kind === 'youtube' ? youtubeEmbedUrl(source) : null;
@@ -29,14 +31,14 @@ const linkLabel = source.kind === 'x'
       class="source-embed source-embed-x"
       data-source-embed="x"
       data-source-id={postId}
-      data-source-url={source.url}
+      data-source-url={href}
     >
       <div class="source-embed-placeholder" data-source-placeholder>
         <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
           <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
         </svg>
         <span>{author ? `Post by @${author}` : 'Post on X'}</span>
-        <a href={source.url} rel="nofollow">{linkLabel}</a>
+        {href ? <a href={href} rel="nofollow">{linkLabel}</a> : <span>{linkLabel}</span>}
       </div>
       <div class="source-embed-mount" data-source-mount aria-live="polite"></div>
     </div>
@@ -52,11 +54,18 @@ const linkLabel = source.kind === 'x'
       ></iframe>
     </div>
   ) : (
-    <a class="source-embed source-embed-link" href={source.url} rel="nofollow">
+    href ? (
+    <a class="source-embed source-embed-link" href={href} rel="nofollow">
       <span class="source-embed-link-platform">{platform}</span>
       <span>{linkLabel}</span>
       <span aria-hidden="true">↗</span>
     </a>
+    ) : (
+    <span class="source-embed source-embed-link">
+      <span class="source-embed-link-platform">{platform}</span>
+      <span>{linkLabel}</span>
+    </span>
+    )
   )
 }
 

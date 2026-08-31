@@ -6,6 +6,7 @@ import SourceEmbed from '../components/SourceEmbed.astro';
 import { SITE } from '../config';
 import { getBots } from '../lib/data';
 import { groupSources, sourcePlatformName, type SourceKind } from '../lib/sources';
+import { safeHref } from '../lib/urls';
 
 const bots = await getBots();
 const sources = groupSources(bots);
@@ -28,7 +29,7 @@ const structuredData = {
     itemListElement: sources.map((source, index) => ({
       '@type': 'ListItem',
       position: index + 1,
-      url: source.url,
+      url: safeHref(source.url) ?? `${SITE.url}/sources/`,
       name: `${sourcePlatformName(source.kind)} source for ${source.bots.map((bot) => bot.name).join(', ')}`,
     })),
   },
@@ -73,11 +74,16 @@ if (kindCounts.get('web')) filters.push({ value: 'web', label: 'Other', count: k
         sources.map((source) => {
           const visibleBots = source.bots.slice(0, 5);
           const remainingBots = source.bots.slice(5);
+          const sourceHref = safeHref(source.url);
           return (
             <article class="source-card" data-source-card={source.kind}>
               <div class="source-card-head">
                 <span class={`source-platform source-platform-${source.kind}`}>{sourcePlatformName(source.kind)}</span>
-                <a href={source.url} class="source-external" rel="nofollow">Open source <span aria-hidden="true">↗</span></a>
+                {sourceHref ? (
+                  <a href={sourceHref} class="source-external" rel="nofollow">Open source <span aria-hidden="true">↗</span></a>
+                ) : (
+                  <span class="source-external">Open source</span>
+                )}
               </div>
 
               <SourceEmbed source={source} />

@@ -11,6 +11,7 @@ import { getBots, SPONSORS, type Bot } from '../../lib/data';
 import { botDescription, botLastModified, categorySlug, integrationSlug, listIntegrations, relatedBots } from '../../lib/seo';
 import { sponsorUrl } from '../../lib/utm';
 import { sourceContentName } from '../../lib/sources';
+import { safeHref } from '../../lib/urls';
 
 export async function getStaticPaths() {
   const bots = await getBots();
@@ -27,6 +28,14 @@ interface Props {
 const { bot, bots, integrationHubNames } = Astro.props;
 const cat = catStyle(bot.category);
 const primarySource = bot.sources[0];
+const primarySourceHref = primarySource ? safeHref(primarySource.url) : undefined;
+const contributorHref =
+  safeHref(bot.contributorUrl) ??
+  (bot.contributor
+    ? primarySource?.kind === 'x'
+      ? `https://x.com/${bot.contributor}`
+      : `https://github.com/${bot.contributor}`
+    : undefined);
 const integrationHubs = new Set(integrationHubNames);
 const related = relatedBots(bot, bots);
 const title = `${bot.name} Grok Bot Prompt`;
@@ -43,7 +52,9 @@ const structuredData = [
     description,
     genre: bot.category,
     keywords: [bot.category, ...bot.integrations, 'AI bot prompt', 'Grok Bot prompt'],
-    ...(bot.sources.length && { citation: bot.sources.map((source) => source.url) }),
+    ...(bot.sources.length && {
+      citation: bot.sources.map((source) => safeHref(source.url)).filter((url): url is string => Boolean(url)),
+    }),
     isAccessibleForFree: true,
     datePublished: bot.addedAt,
     dateModified: botLastModified(bot),
@@ -52,7 +63,7 @@ const structuredData = [
       creator: {
         '@type': 'Person',
         name: bot.contributor,
-        url: bot.contributorUrl ?? `https://github.com/${bot.contributor}`,
+        url: contributorHref ?? `https://github.com/${bot.contributor}`,
       },
     }),
   },
@@ -91,19 +102,23 @@ const structuredData = [
           <span class="attribution">
           {primarySource ? (
             <>
-              Based on <a href={primarySource.url}>this {sourceContentName(primarySource.kind)}</a>
-              {bot.contributor && (
+              Based on {primarySourceHref ? (
+                <a href={primarySourceHref}>this {sourceContentName(primarySource.kind)}</a>
+              ) : (
+                <>this {sourceContentName(primarySource.kind)}</>
+              )}
+              {bot.contributor && contributorHref && (
                 <>
                   {' by '}
-                  <a href={bot.contributorUrl ?? (primarySource.kind === 'x' ? `https://x.com/${bot.contributor}` : `https://github.com/${bot.contributor}`)}>@{bot.contributor}</a>
+                  <a href={contributorHref}>@{bot.contributor}</a>
                 </>
               )}
             </>
           ) : (
-            bot.contributor && (
+            bot.contributor && contributorHref && (
               <>
                 Contributed by{' '}
-                <a href={bot.contributorUrl ?? `https://github.com/${bot.contributor}`}>@{bot.contributor}</a>
+                <a href={contributorHref}>@{bot.contributor}</a>
               </>
             )
           )}

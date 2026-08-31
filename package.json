@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "validate": "tsx scripts/validate-bots.ts",
+    "test": "tsx --test src/lib/urls.test.ts",
     "astro": "astro",
     "icons": "tsx scripts/fetch-icons.ts",
     "icons:sync": "tsx scripts/fetch-icons.ts --sync",
