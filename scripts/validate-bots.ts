@@ -15,11 +15,11 @@ import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { CATEGORIES, slugify } from '../src/lib/constants';
 import { SOURCE_KINDS, sourceMatchesKind } from '../src/lib/sources';
+import { httpsUrl } from '../src/lib/urls';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BOTS_DIR = join(ROOT, 'bots');
 
-const httpsUrl = z.string().url().refine((value) => value.startsWith('https://'), 'Must use HTTPS');
 const sourceSchema = z
   .object({
     kind: z.enum(SOURCE_KINDS),
@@ -51,12 +51,12 @@ const schema = z
     added_at: z.string().datetime(),
     updated_at: z.string().datetime().optional(),
     contributor: z.string().min(1).optional(),
-    contributor_url: z.string().url().optional(),
+    contributor_url: httpsUrl.optional(),
     scouted_by: z.string().min(1).optional(),
     integrations: z.array(z.string().min(1)).min(1),
     integration_urls: z.record(z.string().min(1), httpsUrl).optional(),
-    url: z.string().url().optional(),
-    added_via: z.string().url().optional(),
+    url: httpsUrl.optional(),
+    added_via: httpsUrl.optional(),
     sources: z.array(sourceSchema).min(1).optional(),
   })
   .strict()
