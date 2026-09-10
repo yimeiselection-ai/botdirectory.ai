@@ -1,9 +1,9 @@
 /**
- * Multi-agent workbench: publish a goal, route subtasks to Cursor / Coco / 豆包,
+ * Multi-agent workbench: publish a goal, route subtasks to Cursor / Codex / 豆包,
  * collect deliverables, and roll them into one summary for the human.
  */
 
-export type AgentId = 'cursor' | 'coco' | 'doubao';
+export type AgentId = 'cursor' | 'codex' | 'doubao';
 export type TaskStatus = 'queued' | 'working' | 'done' | 'blocked';
 
 export interface Agent {
@@ -43,10 +43,10 @@ export const AGENTS: Agent[] = [
     accent: '#1F6FEB',
   },
   {
-    id: 'coco',
-    name: 'Coco',
-    role: '统筹与落地',
-    blurb: '拆任务、盯进度、补流程、催决策。',
+    id: 'codex',
+    name: 'Codex',
+    role: '自主编码',
+    blurb: 'OpenAI Codex：脚本、自动化、独立编码任务。',
     accent: '#0F7B6C',
   },
   {
@@ -58,7 +58,7 @@ export const AGENTS: Agent[] = [
   },
 ];
 
-const STORAGE_KEY = 'botdirectory-multi-agent-workbench-v1';
+const STORAGE_KEY = 'botdirectory-multi-agent-workbench-v2';
 
 function uid(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
@@ -111,20 +111,16 @@ export function routeAgents(goal: string): AgentId[] {
     'repo',
     'cursor',
   ];
-  const cocoKeys = [
-    '安排',
-    '统筹',
-    '协调',
-    '进度',
-    '流程',
-    '跟进',
-    '拆解',
-    '计划',
-    '落地',
-    '催',
-    '决策',
-    'ops',
-    'coco',
+  const codexKeys = [
+    'codex',
+    'openai',
+    '脚本',
+    '自动化',
+    'cli',
+    'agent',
+    '批处理',
+    '独立编码',
+    '云端编码',
   ];
   const doubaoKeys = [
     '文案',
@@ -143,11 +139,13 @@ export function routeAgents(goal: string): AgentId[] {
   ];
 
   for (const k of cursorKeys) if (text.includes(k)) hits.add('cursor');
-  for (const k of cocoKeys) if (text.includes(k)) hits.add('coco');
+  for (const k of codexKeys) if (text.includes(k)) hits.add('codex');
   for (const k of doubaoKeys) if (text.includes(k)) hits.add('doubao');
 
-  if (hits.size === 0) return ['coco', 'cursor', 'doubao'];
-  if (!hits.has('coco') && hits.size === 1) hits.add('coco');
+  if (hits.size === 0) return ['cursor', 'codex', 'doubao'];
+  // Coding work often benefits from both Cursor and Codex in parallel.
+  if (hits.has('cursor') && !hits.has('codex') && !hits.has('doubao')) hits.add('codex');
+  if (hits.has('codex') && !hits.has('cursor') && !hits.has('doubao')) hits.add('cursor');
   return AGENTS.map((a) => a.id).filter((id) => hits.has(id));
 }
 
@@ -158,10 +156,10 @@ function draftSubtask(agentId: AgentId, goal: string): Pick<Subtask, 'title' | '
         title: '实现与落地代码',
         brief: `围绕目标「${goal}」，负责可运行的改动：摸清仓库现状、实现最小可用方案、自测，并准备可审查的产出（diff / PR 说明）。不要替其他 agent 写长文案。`,
       };
-    case 'coco':
+    case 'codex':
       return {
-        title: '拆解、编排与验收',
-        brief: `把目标「${goal}」拆成可执行步骤，标出依赖与风险，跟踪 Cursor / 豆包进度，汇总缺口，并给出需要人类拍板的决策清单。`,
+        title: 'Codex 自主编码任务',
+        brief: `作为 OpenAI Codex，针对「${goal}」承接可独立完成的编码工作：脚本、自动化、批量改动或云端编码任务。给出可复现步骤与产出物，并标明与 Cursor 仓库改动的边界。`,
       };
     case 'doubao':
       return {
@@ -193,11 +191,11 @@ function demoResult(agentId: AgentId, goal: string): string {
         `产出：针对「${goal}」给出可落地的工程步骤（结构、入口文件、验证命令），并预留 PR 说明草稿。`,
         '阻塞：需要真实仓库权限或 API Key 才能把改动推到远端。',
       ].join('\n');
-    case 'coco':
+    case 'codex':
       return [
-        '结论：任务已拆成三角色并行，依赖清晰。',
-        `产出：① Cursor 负责实现 ② 豆包负责表达材料 ③ 我负责汇总验收「${goal}」。`,
-        '决策清单：优先级、截止时间、是否允许自动发消息/发 PR。',
+        '结论：已按 Codex 自主编码路径拆出可独立执行的任务包。',
+        `产出：针对「${goal}」给出脚本/自动化步骤、预期产物，以及与 Cursor 仓库改动的分工边界。`,
+        '阻塞：需要 Codex 运行环境权限或相关 API/密钥才能真正执行。',
       ].join('\n');
     case 'doubao':
       return [
@@ -312,7 +310,7 @@ export function mountWorkbench(root: HTMLElement): void {
     el('h2', { class: 'wb-section-title', text: '发布任务' }),
     el('p', {
       class: 'wb-section-lead',
-      text: '你只需要在这里下发目标。工作台会拆给 Cursor、Coco、豆包，再把结果汇总回来。',
+      text: '你只需要在这里下发目标。工作台会拆给 Cursor、Codex、豆包，再把结果汇总回来。',
     }),
     goalInput,
     notesInput,
@@ -410,7 +408,7 @@ export function mountWorkbench(root: HTMLElement): void {
     if (!mission) {
       board.append(
         el('div', { class: 'wb-board-empty' }, [
-          el('p', { text: '发布一条任务后，这里会出现 Cursor / Coco / 豆包 三条泳道。' }),
+          el('p', { text: '发布一条任务后，这里会出现 Cursor / Codex / 豆包 三条泳道。' }),
         ]),
       );
       summary.append(
