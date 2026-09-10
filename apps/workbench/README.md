@@ -80,11 +80,11 @@ pnpm cap:sync
 
 ```bash
 cd apps/workbench/sync-worker
+pnpm install --config.minimumReleaseAge=0
 pnpm exec wrangler login
 pnpm exec wrangler d1 create workbench-sync
 # 把 database_id 写入 wrangler.jsonc 后：
 pnpm exec wrangler d1 migrations apply workbench-sync --remote
-pnpm exec wrangler deploy
-```
+pnpm exec wrangler deploy```
 
 在 App「云端账号同步」里填 `https://….workers.dev`，注册/登录同一邮箱即可。

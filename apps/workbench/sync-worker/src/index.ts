@@ -84,8 +84,9 @@ async function hashPassword(password: string, saltHex?: string): Promise<{ hash:
   const keyMaterial = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, [
     'deriveBits',
   ]);
+  // Keep iterations modest: Workers free CPU budget is small; 120k often returns 500.
   const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt, iterations: 120_000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations: 10_000, hash: 'SHA-256' },
     keyMaterial,
     256,
   );
@@ -234,7 +235,8 @@ export default {
       return error(404, 'Not found');
     } catch (err) {
       console.error(err);
-      return error(500, '服务器错误');
+      const detail = err instanceof Error ? err.message : String(err);
+      return error(500, `服务器错误: ${detail}`);
     }
   },
 };
