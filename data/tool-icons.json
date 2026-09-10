@@ -116,8 +116,12 @@
   "Claude Code": "https://cdn.simpleicons.org/claudecode",
   "Codex": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Fopenai.com%2Fcodex%2F&sz=64",
   "Codex CLI": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Fopenai.com%2Fcodex%2F&sz=64",
+  "Cursor": "https://cdn.simpleicons.org/cursor",
   "Cursor Background Agents": "https://cdn.simpleicons.org/cursor",
   "Cursor Cloud Agents": "https://cdn.simpleicons.org/cursor",
+  "Doubao": {
+    "site": "https://www.doubao.com"
+  },
   "Discord": "https://cdn.simpleicons.org/discord",
   "ExifTool": {
     "site": "https://exiftool.org"

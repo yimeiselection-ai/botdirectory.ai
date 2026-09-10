@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#1f6feb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="工作台" />
+    <link rel="icon" type="image/png" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>多智能体工作台</title>
+  </head>
+  <body>
+    <div class="wb-page">
+      <main class="wb-main">
+        <header class="wb-hero">
+          <p class="wb-brand">多智能体工作台</p>
+          <h1 class="wb-title">Cursor · Codex · 豆包</h1>
+          <p class="wb-sub">
+            本地应用：发布任务、分派给三位智能体、汇总结果。数据保存在本机。
+          </p>
+          <ul class="wb-steps" aria-label="使用步骤">
+            <li><span>1</span>写下目标并发布</li>
+            <li><span>2</span>复制各泳道提示词到对应 AI</li>
+            <li><span>3</span>回填产出，一键生成总汇报</li>
+          </ul>
+        </header>
+        <div id="workbench-root" class="wb-root" data-wb-root></div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
