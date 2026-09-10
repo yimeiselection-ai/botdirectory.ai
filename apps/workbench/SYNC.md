@@ -208,10 +208,11 @@ cd ../..
 
 # 第 7 步：登录 Cloudflare（浏览器授权）
 
-1. 进入同步服务目录：
+1. 进入同步服务目录并安装依赖（必须先装好 `wrangler`）：
 
 ```text
 cd apps/workbench/sync-worker
+pnpm install --config.minimumReleaseAge=0
 ```
 
 2. 输入：
@@ -220,6 +221,17 @@ cd apps/workbench/sync-worker
 pnpm exec wrangler login
 ```
 
+若提示 `Command "wrangler" not found`：说明还在错误目录，或依赖未安装。  
+先回到项目根目录再进一次：
+
+```text
+cd ../..\..
+cd apps/workbench/sync-worker
+pnpm install --config.minimumReleaseAge=0
+pnpm exec wrangler login
+```
+
+（Mac / Linux 用 `cd ../../..` 回到根目录。）
 3. 会发生其中一种情况：  
    - **自动打开浏览器**  
    - 或终端出现一串以 `https://` 开头的链接 → **复制到浏览器打开**

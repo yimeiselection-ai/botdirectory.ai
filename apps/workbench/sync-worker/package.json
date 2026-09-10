@@ -1,0 +1,17 @@
+{
+  "name": "workbench-sync-worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker + D1 sync API for the multi-agent workbench",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "login": "wrangler login",
+    "d1:create": "wrangler d1 create workbench-sync",
+    "d1:migrate": "wrangler d1 migrations apply workbench-sync --remote"
+  },
+  "devDependencies": {
+    "wrangler": "4.123.0"
+  }
+}
