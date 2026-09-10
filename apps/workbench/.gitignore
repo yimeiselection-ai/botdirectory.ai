@@ -1,0 +1,14 @@
+node_modules/
+dist/
+release/
+.DS_Store
+*.log
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/captures/
+ios/App/Pods/
+ios/DerivedData/
+.idea/
+.vscode/

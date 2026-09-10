@@ -13,7 +13,12 @@
     "astro": "astro",
     "icons": "tsx scripts/fetch-icons.ts",
     "icons:sync": "tsx scripts/fetch-icons.ts --sync",
-    "deploy:proxy": "wrangler deploy -c workers/t/wrangler.jsonc"
+    "deploy:proxy": "wrangler deploy -c workers/t/wrangler.jsonc",
+    "workbench:dev": "pnpm --dir apps/workbench dev",
+    "workbench:build": "pnpm --dir apps/workbench build",
+    "workbench:desktop": "pnpm --dir apps/workbench electron:build",
+    "workbench:desktop:linux": "pnpm --dir apps/workbench electron:build:linux",
+    "workbench:mobile:sync": "pnpm --dir apps/workbench cap:sync"
   },
   "dependencies": {
     "astro": "^5.13.2"
