@@ -69,3 +69,22 @@ pnpm cap:sync
 - 本地 App：本目录打包结果（独立窗口 / 手机图标）
 
 两边逻辑一致；任务数据存在各设备本地，默认不同步。
+
+## 云端同步（电脑 ↔ 手机）
+
+**不需要自购服务器。** 用免费 Cloudflare 账号部署同步 Worker 即可。
+
+完整步骤见 [SYNC.md](./SYNC.md)。
+
+简要：
+
+```bash
+cd apps/workbench/sync-worker
+pnpm exec wrangler login
+pnpm exec wrangler d1 create workbench-sync
+# 把 database_id 写入 wrangler.jsonc 后：
+pnpm exec wrangler d1 migrations apply workbench-sync --remote
+pnpm exec wrangler deploy
+```
+
+在 App「云端账号同步」里填 `https://….workers.dev`，注册/登录同一邮箱即可。

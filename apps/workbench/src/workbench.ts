@@ -60,6 +60,14 @@ export const AGENTS: Agent[] = [
 
 const STORAGE_KEY = 'botdirectory-multi-agent-workbench-v2';
 
+export function getStoredMissions(): Mission[] {
+  return loadMissions();
+}
+
+export function setStoredMissions(missions: Mission[]): void {
+  saveMissions(missions);
+}
+
 function uid(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
 }
@@ -254,9 +262,17 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-export function mountWorkbench(root: HTMLElement): void {
+export function mountWorkbench(
+  root: HTMLElement,
+  options: { onChange?: (missions: Mission[]) => void } = {},
+): { reload: () => void } {
   let missions = loadMissions();
   let activeId: string | null = missions[0]?.id ?? null;
+
+  function persist(): void {
+    saveMissions(missions);
+    options.onChange?.(missions);
+  }
 
   const shell = el('div', { class: 'wb-shell' });
   const publish = el('section', { class: 'wb-publish', 'aria-label': '发布任务' });
@@ -354,7 +370,7 @@ export function mountWorkbench(root: HTMLElement): void {
     };
     missions = [mission, ...missions];
     activeId = mission.id;
-    saveMissions(missions);
+    persist();
     goalInput.value = '';
     notesInput.value = '';
     render();
@@ -399,7 +415,7 @@ export function mountWorkbench(root: HTMLElement): void {
         if (!confirm('清空本机保存的全部工作台任务？')) return;
         missions = [];
         activeId = null;
-        saveMissions(missions);
+        persist();
         render();
       });
       history.append(clearBtn);
@@ -510,12 +526,12 @@ export function mountWorkbench(root: HTMLElement): void {
       workingBtn.addEventListener('click', () => {
         sub.status = 'working';
         sub.updatedAt = nowIso();
-        saveMissions(missions);
+        persist();
         render();
       });
       demoBtn.addEventListener('click', () => {
         sub.status = 'working';
-        saveMissions(missions);
+        persist();
         render();
         window.setTimeout(() => {
           const current = missions.find((m) => m.id === mission.id);
@@ -524,7 +540,7 @@ export function mountWorkbench(root: HTMLElement): void {
           task.result = demoResult(agent.id, mission.goal);
           task.status = 'done';
           task.updatedAt = nowIso();
-          saveMissions(missions);
+          persist();
           render();
         }, 700 + Math.random() * 900);
       });
@@ -532,14 +548,14 @@ export function mountWorkbench(root: HTMLElement): void {
         sub.result = resultBox.value.trim();
         sub.status = sub.result ? 'done' : 'queued';
         sub.updatedAt = nowIso();
-        saveMissions(missions);
+        persist();
         render();
       });
       blockBtn.addEventListener('click', () => {
         sub.result = resultBox.value.trim();
         sub.status = 'blocked';
         sub.updatedAt = nowIso();
-        saveMissions(missions);
+        persist();
         render();
       });
 
@@ -581,14 +597,14 @@ export function mountWorkbench(root: HTMLElement): void {
     genBtn.addEventListener('click', () => {
       mission.summary = composeSummary(mission);
       mission.status = 'summarized';
-      saveMissions(missions);
+      persist();
       summaryOut.value = mission.summary;
     });
     copySummaryBtn.addEventListener('click', async () => {
       if (!summaryOut.value.trim()) {
         mission.summary = composeSummary(mission);
         summaryOut.value = mission.summary;
-        saveMissions(missions);
+        persist();
       }
       try {
         await navigator.clipboard.writeText(summaryOut.value);
@@ -604,4 +620,12 @@ export function mountWorkbench(root: HTMLElement): void {
   }
 
   render();
+
+  return {
+    reload() {
+      missions = loadMissions();
+      activeId = missions[0]?.id ?? null;
+      render();
+    },
+  };
 }
